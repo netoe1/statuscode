@@ -1,0 +1,23 @@
+{
+  "name": "http-server-error-codes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netoe1/http-server-error-codes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/netoe1/http-server-error-codes/issues"
+  },
+  "homepage": "https://github.com/netoe1/http-server-error-codes#readme",
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
