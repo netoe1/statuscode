@@ -1,72 +1,77 @@
+import express from "express";
+import { Request, Response } from "express";
+
+//#region ENUM_REGION
 enum HTTPStatus {
   // 1xx Informational
   INFO_CONTINUE = 100,
   INFO_SWITCHING_PROTOCOLS = 101,
 
   // 2xx Success
-  SUCCESS_OK = 200,
-  SUCCESS_CREATED = 201,
-  SUCCESS_ACCEPTED = 202,
-  SUCCESS_NON_AUTHORITATIVE_INFORMATION = 203,
-  SUCCESS_NO_CONTENT = 204,
-  SUCCESS_RESET_CONTENT = 205,
-  SUCCESS_PARTIAL_CONTENT = 206,
+  OK = 200,
+  CREATED = 201,
+  ACCEPTED = 202,
+  NON_AUTHORITATIVE_INFORMATION = 203,
+  NO_CONTENT = 204,
+  RESET_CONTENT = 205,
+  PARTIAL_CONTENT = 206,
 
   // 3xx Redirection
-  REDIRECT_MULTIPLE_CHOICES = 300,
-  REDIRECT_MOVED_PERMANENTLY = 301,
-  REDIRECT_FOUND = 302,
-  REDIRECT_SEE_OTHER = 303,
-  REDIRECT_NOT_MODIFIED = 304,
-  REDIRECT_USE_PROXY = 305,
-  REDIRECT_TEMPORARY_REDIRECT = 307,
-  REDIRECT_PERMANENT_REDIRECT = 308,
+  MULTIPLE_CHOICES = 300,
+  MOVED_PERMANENTLY = 301,
+  FOUND = 302,
+  SEE_OTHER = 303,
+  NOT_MODIFIED = 304,
+  USE_PROXY = 305,
+  TEMPORARY_REDIRECT = 307,
+  PERMANENT_REDIRECT = 308,
 
   // 4xx Client Error
-  CLIERR_BAD_REQUEST = 400,
-  CLIERR_UNAUTHORIZED = 401,
-  CLIERR_PAYMENT_REQUIRED = 402,
-  CLIERR_FORBIDDEN = 403,
-  CLIERR_NOT_FOUND = 404,
-  CLIERR_METHOD_NOT_ALLOWED = 405,
-  CLIERR_NOT_ACCEPTABLE = 406,
-  CLIERR_PROXY_AUTHENTICATION_REQUIRED = 407,
-  CLIERR_REQUEST_TIMEOUT = 408,
-  CLIERR_CONFLICT = 409,
-  CLIERR_GONE = 410,
-  CLIERR_LENGTH_REQUIRED = 411,
-  CLIERR_PRECONDITION_FAILED = 412,
-  CLIERR_PAYLOAD_TOO_LARGE = 413,
-  CLIERR_URI_TOO_LONG = 414,
-  CLIERR_UNSUPPORTED_MEDIA_TYPE = 415,
-  CLIERR_RANGE_NOT_SATISFIABLE = 416,
-  CLIERR_EXPECTATION_FAILED = 417,
-  CLIERR_IM_A_TEAPOT = 418, // Um easter egg RFC
-  CLIERR_MISDIRECTED_REQUEST = 421,
-  CLIERR_UNPROCESSABLE_ENTITY = 422,
-  CLIERR_LOCKED = 423,
+  BAD_REQUEST = 400,
+  UNAUTHORIZED = 401,
+  PAYMENT_REQUIRED = 402,
+  FORBIDDEN = 403,
+  NOT_FOUND = 404,
+  METHOD_NOT_ALLOWED = 405,
+  NOT_ACCEPTABLE = 406,
+  PROXY_AUTHENTICATION_REQUIRED = 407,
+  REQUEST_TIMEOUT = 408,
+  CONFLICT = 409,
+  GONE = 410,
+  LENGTH_REQUIRED = 411,
+  PRECONDITION_FAILED = 412,
+  PAYLOAD_TOO_LARGE = 413,
+  URI_TOO_LONG = 414,
+  UNSUPPORTED_MEDIA_TYPE = 415,
+  RANGE_NOT_SATISFIABLE = 416,
+  EXPECTATION_FAILED = 417,
+  IM_A_TEAPOT = 418, // Um easter egg RFC
+  MISDIRECTED_REQUEST = 421,
+  UNPROCESSABLE_ENTITY = 422,
+  LOCKED = 423,
   FAILED_DEPENDENCY = 424,
-  CLIERR_TOO_EARLY = 425,
-  CLIERR_UPGRADE_REQUIRED = 426,
-  CLIERR_PRECONDITION_REQUIRED = 428,
-  CLIERR_TOO_MANY_REQUESTS = 429,
-  CLIERR_REQUEST_HEADER_FIELDS_TOO_LARGE = 431,
-  CLIERR_UNAVAILABLE_FOR_LEGAL_REASONS = 451,
+  TOO_EARLY = 425,
+  UPGRADE_REQUIRED = 426,
+  PRECONDITION_REQUIRED = 428,
+  TOO_MANY_REQUESTS = 429,
+  REQUEST_HEADER_FIELDS_TOO_LARGE = 431,
+  UNAVAILABLE_FOR_LEGAL_REASONS = 451,
 
   // 5xx Server Error
-  SERVERERR_INTERNAL_SERVER_ERROR = 500,
-  SERVERERR_NOT_IMPLEMENTED = 501,
-  SERVERERR_BAD_GATEWAY = 502,
-  SERVERERR_SERVICE_UNAVAILABLE = 503,
-  SERVERERR_GATEWAY_TIMEOUT = 504,
-  SERVERERR_HTTP_VERSION_NOT_SUPPORTED = 505,
-  SERVERERR_VARIANT_ALSO_NEGOTIATES = 506,
-  SERVERERR_INSUFFICIENT_STORAGE = 507,
-  SERVERERR_LOOP_DETECTED = 508,
-  SERVERERR_NOT_EXTENDED = 510,
-  SERVERERR_NETWORK_AUTHENTICATION_REQUIRED = 511,
+  INTERNAL_SERVER_ERROR = 500,
+  NOT_IMPLEMENTED = 501,
+  BAD_GATEWAY = 502,
+  SERVICE_UNAVAILABLE = 503,
+  GATEWAY_TIMEOUT = 504,
+  HTTP_VERSION_NOT_SUPPORTED = 505,
+  VARIANT_ALSO_NEGOTIATES = 506,
+  INSUFFICIENT_STORAGE = 507,
+  LOOP_DETECTED = 508,
+  NOT_EXTENDED = 510,
+  NETWORK_AUTHENTICATION_REQUIRED = 511,
 }
-
+//#endregion ENUM_REGION
+//#region COMMENTARY_REGION
 // const STATUSCODES_JSON = {
 //   informational: [
 //     {
@@ -178,13 +183,55 @@ enum HTTPStatus {
 //   ],
 // };
 
-class ServerStatus {
-  private sendResponse(
-    req: Request,
-    res: Response,
-    msg: JSON,
-    code: HTTPStatus
-  ) {}
+//#endregion COMMENTARY_REGION
+
+//#region CLASS_REGION
+
+class StatusCode {
+  #status_code;
+  #JSON;
+  #errMessage;
+
+  constructor(status_code: HTTPStatus, JSON: Object, errMessage: string) {
+    if (errMessage == null) {
+      this.#errMessage = "not defined";
+    }
+    if (status_code != null || JSON != null) {
+      this.#JSON = JSON;
+      this.#status_code = status_code;
+      this.#errMessage = errMessage;
+      return;
+    }
+
+    throw new Error(
+      "[statuscode-constructor-err]: [Erro ao usar o construtor]"
+    );
+  }
+
+  get statuscode() {
+    return this.#status_code;
+  }
+
+  get json() {
+    return this.#JSON;
+  }
+  get errMessage() {
+    return this.#errMessage;
+  }
+
+  notifySvByTerminal(msg: string) {
+    return console.info("[Server-side]" + "[" + msg + "]");
+  }
+
+  notifySvByResponse(res: Response, info: StatusCode) {
+    return res.status(this.#errMessage).send(this.json).end();
+  }
+
+  notifyBoth(res: Response, info: StatusCode) {
+    res.status(this.#errMessage).send(this.json).end();
+    return console.info("[Server-side]:" + "[" + info.json + "]");
+  }
 }
 
-export { HTTPStatus };
+//#endregion CLASS_REGION
+export { HTTPStatus, StatusCode };
