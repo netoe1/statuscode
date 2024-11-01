@@ -18,6 +18,7 @@ if(err instanceof EmptyObject) {}
 
 
 
-res.status().send().end();
+res.status(HTTPStatus.BAD_REQUEST).send(err.object).end();
+console.error(`[assignRoleToUser()][BAD-REQUEST][${err.err}]`);
 
 */
